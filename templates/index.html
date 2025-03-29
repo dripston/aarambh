@@ -1,0 +1,146 @@
+{% extends 'layout.html' %}
+
+{% block title %}Indian Climate Analysis & Disaster Prediction{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<div class="hero-section rounded">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 text-center">
+                <h1 class="display-4 mb-4">Climate Monitoring & Disaster Prediction for India</h1>
+                <p class="lead mb-4">Leveraging real-time data analysis and AI to predict natural disasters and guide government response strategies across India</p>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-center">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 me-md-2">View Dashboard</a>
+                    <a href="{{ url_for('prediction') }}" class="btn btn-outline-light btn-lg px-4">Disaster Predictions</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Key Features</h2>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="card h-100 dashboard-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-cloud-sun-rain feature-icon"></i>
+                        <h3 class="h5">Real-time Climate Data</h3>
+                        <p class="card-text">Access live weather data across major Indian cities including temperature, humidity, and precipitation.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 dashboard-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-line feature-icon"></i>
+                        <h3 class="h5">Disaster Predictions</h3>
+                        <p class="card-text">AI-powered analysis of historical data to predict potential natural disasters in different regions.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 dashboard-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-camera feature-icon"></i>
+                        <h3 class="h5">Image Analysis</h3>
+                        <p class="card-text">Upload images of weather and environmental conditions for AI-based disaster detection.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card h-100 dashboard-card">
+                    <div class="card-body text-center">
+                        <i class="fas fa-clipboard-list feature-icon"></i>
+                        <h3 class="h5">Response Strategies</h3>
+                        <p class="card-text">Government-approved guidelines and response protocols for various disaster scenarios.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Map Section -->
+<section class="py-5 bg-dark rounded">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h2>National Climate Monitoring</h2>
+                <p class="lead">View real-time climate conditions across India</p>
+                <p>Our interactive map provides current weather data and disaster risk assessments for major cities throughout India. Click on any marker to view detailed information.</p>
+                <div id="map-loading" class="spinner-border text-info" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <div id="map-error" class="alert alert-danger d-none" role="alert"></div>
+            </div>
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-body p-0">
+                        <div id="india-map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Recent Disaster Imagery -->
+<section class="py-5">
+    <div class="container">
+        <h2 class="text-center mb-5">Climate Monitoring & Disaster Imagery</h2>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <img src="https://images.unsplash.com/photo-1496372412473-e8548ffd82bc" class="card-img-top" alt="Monsoon flooding in India">
+                    <div class="card-body">
+                        <h5 class="card-title">Monsoon Flooding</h5>
+                        <p class="card-text">Seasonal monsoon rains can cause severe flooding in many parts of India. Our system monitors rainfall patterns to predict flooding risks.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <img src="https://images.unsplash.com/photo-1486548730767-5c679e8eda6b" class="card-img-top" alt="Cyclone damage in coastal regions">
+                    <div class="card-body">
+                        <h5 class="card-title">Cyclone Monitoring</h5>
+                        <p class="card-text">India's coastal regions are vulnerable to cyclones. We track developing weather systems and provide early warnings for coastal communities.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <img src="https://images.unsplash.com/photo-1562155955-1cb2d73488d7" class="card-img-top" alt="Satellite imagery of weather systems">
+                    <div class="card-body">
+                        <h5 class="card-title">Satellite Analysis</h5>
+                        <p class="card-text">Using satellite imagery and advanced weather models to track and predict weather patterns and potential natural disasters.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="py-5 bg-dark rounded">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-10 text-center">
+                <h2 class="mb-4">Ready to Monitor Climate Conditions?</h2>
+                <p class="lead mb-4">Get real-time updates on weather patterns and disaster predictions across India</p>
+                <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-lg px-4 gap-3">Go to Dashboard</a>
+                    <a href="{{ url_for('image_analysis') }}" class="btn btn-outline-light btn-lg px-4">Try Image Analysis</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}

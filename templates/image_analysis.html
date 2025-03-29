@@ -1,0 +1,180 @@
+{% extends 'layout.html' %}
+
+{% block title %}Image Analysis - Indian Climate Analysis{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Disaster Image Analysis</h1>
+<div class="row">
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h4 class="mb-0">Upload Image for Analysis</h4>
+            </div>
+            <div class="card-body">
+                <p>Upload an image of weather conditions, cloud formations, or potential disaster scenes for AI-powered analysis.</p>
+                
+                <form id="analysis-form" method="post" enctype="multipart/form-data">
+                    <div class="image-upload-container mb-3">
+                        <div id="image-preview-container" class="text-center mb-3 d-none">
+                            <img id="image-preview" src="" alt="Image preview" class="image-preview">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="image-upload" class="form-label">Select Image</label>
+                            <input class="form-control" type="file" id="image-upload" name="file" accept=".jpg,.jpeg,.png" required>
+                            <div class="form-text">Maximum file size: 5MB. Supported formats: JPG, JPEG, PNG.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="upload-location" class="form-label">Location (Optional)</label>
+                        <select class="form-select" id="upload-location" name="location">
+                            <option value="">Select a location</option>
+                            {% for city in cities %}
+                            <option value="{{ city }}">{{ city }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" id="analyze-button" class="btn btn-primary" disabled>
+                            <i class="fas fa-search me-2"></i>Analyze Image
+                        </button>
+                    </div>
+                </form>
+                
+                <div id="analysis-loading" class="text-center mt-3 d-none">
+                    <div class="spinner-border text-info" role="status">
+                        <span class="visually-hidden">Analyzing image...</span>
+                    </div>
+                    <p>Analyzing image... This may take a few moments.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-6 mb-4">
+        {% if analysis_result %}
+        <div class="card dashboard-card mb-4">
+            <div class="card-header bg-{% if analysis_result.confidence > 0.7 %}success{% elif analysis_result.confidence > 0.4 %}warning{% else %}danger{% endif %}">
+                <h4 class="mb-0 text-white">Analysis Results</h4>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h5>Detected: {{ analysis_result.disaster_type }}</h5>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-{% if analysis_result.confidence > 0.7 %}success{% elif analysis_result.confidence > 0.4 %}warning{% else %}danger{% endif %}" 
+                             role="progressbar" 
+                             style="width: {{ (analysis_result.confidence * 100)|round|int }}%;" 
+                             aria-valuenow="{{ (analysis_result.confidence * 100)|round|int }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="100">
+                            {{ (analysis_result.confidence * 100)|round|int }}%
+                        </div>
+                    </div>
+                    <p class="text-muted">Confidence: {{ (analysis_result.confidence * 100)|round|int }}%</p>
+                </div>
+                
+                <div class="mb-3">
+                    <h5>Description:</h5>
+                    <p>{{ analysis_result.description }}</p>
+                </div>
+                
+                {% if analysis_result.disaster_type != "Unknown" and analysis_result.disaster_type != "No Disaster" %}
+                <div class="alert alert-info">
+                    <h5 class="alert-heading">Recommended Action:</h5>
+                    <p>Based on the analysis, we recommend reviewing the <a href="{{ url_for('strategies', type=analysis_result.disaster_type) }}" class="alert-link">{{ analysis_result.disaster_type }} response strategies</a>.</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h4 class="mb-0">Recent Analyses</h4>
+            </div>
+            <div class="card-body">
+                {% if recent_analyses and recent_analyses|length > 0 %}
+                <div class="list-group">
+                    {% for analysis in recent_analyses %}
+                    <div class="list-group-item list-group-item-action">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">{{ analysis.disaster_type }}</h5>
+                            <small>{{ analysis.upload_date.strftime('%Y-%m-%d %H:%M') }}</small>
+                        </div>
+                        <p class="mb-1">{{ analysis.analysis_result }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small>File: {{ analysis.filename }}</small>
+                            <span class="badge bg-{% if analysis.confidence_score > 0.7 %}success{% elif analysis.confidence_score > 0.4 %}warning{% else %}danger{% endif %}">
+                                Confidence: {{ (analysis.confidence_score * 100)|round|int }}%
+                            </span>
+                        </div>
+                        {% if analysis.location %}
+                        <small class="d-block mt-1">Location: {{ analysis.location }}</small>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    No recent image analyses available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card dashboard-card">
+    <div class="card-header">
+        <h4 class="mb-0">How It Works</h4>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>Our AI Image Analysis</h5>
+                <p>Our system uses advanced AI models to analyze images for signs of natural disasters and severe weather conditions. The analysis process includes:</p>
+                <ol>
+                    <li>Image classification to identify the type of disaster (flood, fire, cyclone, etc.)</li>
+                    <li>Confidence scoring to determine the accuracy of the prediction</li>
+                    <li>Description generation to explain what was detected in the image</li>
+                    <li>Connection to relevant government guidelines and response strategies</li>
+                </ol>
+                <p>This tool can be used by emergency responders, government agencies, and citizens to quickly assess disaster situations and determine appropriate responses.</p>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-dark">
+                        <h5 class="mb-0">Example Disaster Images</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <img src="https://images.unsplash.com/photo-1532375810709-75b1da00537c" class="img-fluid rounded" alt="Flood example">
+                                <p class="text-center mt-1"><small>Flooding</small></p>
+                            </div>
+                            <div class="col-6">
+                                <img src="https://images.unsplash.com/photo-1467307983825-619715426c70" class="img-fluid rounded" alt="Wildfire example">
+                                <p class="text-center mt-1"><small>Wildfire</small></p>
+                            </div>
+                            <div class="col-6">
+                                <img src="https://images.unsplash.com/photo-1461603950871-cd64bcf7acf0" class="img-fluid rounded" alt="Cyclone example">
+                                <p class="text-center mt-1"><small>Cyclone</small></p>
+                            </div>
+                            <div class="col-6">
+                                <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da" class="img-fluid rounded" alt="Landslide example">
+                                <p class="text-center mt-1"><small>Landslide</small></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/image_upload.js') }}"></script>
+{% endblock %}

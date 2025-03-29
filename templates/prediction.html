@@ -1,0 +1,198 @@
+{% extends 'layout.html' %}
+
+{% block title %}Disaster Predictions - Indian Climate Analysis{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Natural Disaster Predictions</h1>
+
+<div class="row">
+    <!-- Historical Disaster Analysis -->
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h4 class="mb-0">Historical Disaster Analysis</h4>
+            </div>
+            <div class="card-body">
+                <div id="historical-chart-loading" class="loading-indicator d-none">
+                    <div class="spinner-border text-info" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="historical-chart-error" class="alert alert-danger d-none" role="alert"></div>
+                
+                <div class="chart-container">
+                    <canvas id="historicalDisasterChart"></canvas>
+                </div>
+                
+                {% if historical_disasters and historical_disasters|length > 0 %}
+                <div class="mt-4">
+                    <h5>Recent Disasters in India</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Event</th>
+                                    <th>Type</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for disaster in historical_disasters[:5] %}
+                                <tr>
+                                    <td>{{ disaster.name }}</td>
+                                    <td>{{ disaster.type }}</td>
+                                    <td>{{ disaster.date }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if disaster.status == 'current' %}warning{% else %}secondary{% endif %}">
+                                            {{ disaster.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info mt-4">
+                    No historical disaster data available.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Current Disaster Risk Distribution -->
+    <div class="col-lg-6 mb-4">
+        <div class="card dashboard-card">
+            <div class="card-header">
+                <h4 class="mb-0">Regional Disaster Risk Distribution</h4>
+            </div>
+            <div class="card-body">
+                <div id="prediction-chart-loading" class="loading-indicator d-none">
+                    <div class="spinner-border text-info" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="prediction-chart-error" class="alert alert-danger d-none" role="alert"></div>
+                
+                <div class="chart-container">
+                    <canvas id="predictionDistributionChart"></canvas>
+                </div>
+                
+                <div class="mt-4">
+                    <h5>High Risk Areas</h5>
+                    <div class="row g-3">
+                        {% set high_risk_predictions = [] %}
+                        {% for prediction in predictions if prediction.severity >= 4 %}
+                            {% do high_risk_predictions.append(prediction) %}
+                        {% endfor %}
+                        
+                        {% if high_risk_predictions|length > 0 %}
+                            {% for prediction in high_risk_predictions[:4] %}
+                            <div class="col-md-6">
+                                <div class="card prediction-card severity-{{ prediction.severity }}">
+                                    <div class="card-body p-3">
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="mb-1">{{ prediction.location }}</h6>
+                                            <span class="badge bg-danger">Severity {{ prediction.severity }}/5</span>
+                                        </div>
+                                        <p class="mb-1">{{ prediction.disaster_type }}</p>
+                                        <small class="text-muted">Probability: {{ (prediction.probability * 100)|round|int }}%</small>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="col-12">
+                                <div class="alert alert-info">
+                                    No high-risk areas detected at this time.
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Map View -->
+<div class="card dashboard-card mb-4">
+    <div class="card-header">
+        <h4 class="mb-0">Disaster Risk Map</h4>
+    </div>
+    <div class="card-body p-0">
+        <div id="india-map" style="height: 500px;"></div>
+    </div>
+    <div class="card-footer">
+        <p class="mb-0"><i class="fas fa-circle text-danger me-2"></i>High Risk <i class="fas fa-circle text-warning mx-2"></i>Medium Risk <i class="fas fa-circle text-info mx-2"></i>Low Risk</p>
+    </div>
+</div>
+
+<!-- Disaster Type Predictions -->
+<div class="card dashboard-card">
+    <div class="card-header">
+        <h4 class="mb-0">Predictions by Disaster Type</h4>
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-tabs" id="disasterTab" role="tablist">
+            {% for disaster_type in disaster_types[:6] %}
+            <li class="nav-item" role="presentation">
+                <button class="nav-link {% if loop.first %}active{% endif %}" id="{{ disaster_type|lower|replace(' ', '-') }}-tab" data-bs-toggle="tab" data-bs-target="#{{ disaster_type|lower|replace(' ', '-') }}" type="button" role="tab" aria-controls="{{ disaster_type|lower|replace(' ', '-') }}" aria-selected="{{ 'true' if loop.first else 'false' }}">
+                    {{ disaster_type }}
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+        <div class="tab-content p-3" id="disasterTabContent">
+            {% for disaster_type in disaster_types[:6] %}
+            <div class="tab-pane fade {% if loop.first %}show active{% endif %}" id="{{ disaster_type|lower|replace(' ', '-') }}" role="tabpanel" aria-labelledby="{{ disaster_type|lower|replace(' ', '-') }}-tab">
+                {% set type_predictions = [] %}
+                {% for prediction in predictions if prediction.disaster_type == disaster_type %}
+                    {% do type_predictions.append(prediction) %}
+                {% endfor %}
+                
+                {% if type_predictions|length > 0 %}
+                <div class="row">
+                    {% for prediction in type_predictions %}
+                    <div class="col-md-6 col-lg-4 mb-3">
+                        <div class="card prediction-card severity-{{ prediction.severity }}">
+                            <div class="card-header">
+                                <h5 class="mb-0">{{ prediction.location }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <p>{{ prediction.description }}</p>
+                                <div class="d-flex justify-content-between">
+                                    <span>Probability: {{ (prediction.probability * 100)|round|int }}%</span>
+                                    <span>Severity: <strong class="severity-{{ prediction.severity }}">{{ prediction.severity }}/5</strong></span>
+                                </div>
+                                <p class="mb-0"><small>Valid until: {{ prediction.valid_until }}</small></p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-info mt-3">
+                    No current predictions for {{ disaster_type }} events.
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <a href="{{ url_for('strategies', type=disaster_type) }}" class="btn btn-outline-info">
+                        <i class="fas fa-clipboard-list me-2"></i>View {{ disaster_type }} Response Strategies
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,257 @@
+/* Custom CSS for Indian Climate Analysis & Disaster Prediction App */
+
+/* Global styles */
+body {
+    padding-top: 56px; /* For fixed navbar */
+}
+
+/* Custom colors for disaster severity */
+.severity-1 {
+    color: #17a2b8; /* info color */
+}
+.severity-2 {
+    color: #17a2b8; /* info color */
+}
+.severity-3 {
+    color: #ffc107; /* warning color */
+}
+.severity-4 {
+    color: #fd7e14; /* orange color */
+}
+.severity-5 {
+    color: #dc3545; /* danger color */
+}
+
+/* Card styling */
+.dashboard-card {
+    transition: transform 0.2s;
+    margin-bottom: 1.5rem;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Weather card */
+.weather-card {
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+}
+
+.weather-card.heat-warning {
+    background: linear-gradient(135deg, #fc4a1a, #f7b733);
+}
+
+.weather-card.rain-alert {
+    background: linear-gradient(135deg, #4ca1af, #c4e0e5);
+}
+
+.weather-card.severe-alert {
+    background: linear-gradient(135deg, #cb2d3e, #ef473a);
+}
+
+.weather-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+/* Prediction cards */
+.prediction-card {
+    border-left-width: 5px !important;
+}
+
+.prediction-card.severity-1, .prediction-card.severity-2 {
+    border-left-color: #17a2b8 !important;
+}
+
+.prediction-card.severity-3 {
+    border-left-color: #ffc107 !important;
+}
+
+.prediction-card.severity-4 {
+    border-left-color: #fd7e14 !important;
+}
+
+.prediction-card.severity-5 {
+    border-left-color: #dc3545 !important;
+}
+
+/* Map styles */
+#india-map {
+    height: 500px;
+    width: 100%;
+    border-radius: 0.25rem;
+}
+
+.map-popup {
+    min-width: 200px;
+}
+
+.pulsing-circle {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+    70% {
+        opacity: 0.3;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 0.6;
+        transform: scale(0.9);
+    }
+}
+
+/* Image upload styles */
+.image-upload-container {
+    border: 2px dashed #ccc;
+    border-radius: 0.25rem;
+    padding: 2rem;
+    text-align: center;
+    margin-bottom: 1.5rem;
+}
+
+.image-upload-container:hover {
+    border-color: #17a2b8;
+}
+
+.image-preview {
+    max-width: 100%;
+    max-height: 300px;
+    margin: 1rem auto;
+    border-radius: 0.25rem;
+}
+
+/* Strategy cards */
+.strategy-card {
+    margin-bottom: 1.5rem;
+}
+
+.strategy-card .card-header {
+    font-weight: bold;
+}
+
+.strategy-phase {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    margin-left: 0.5rem;
+}
+
+.strategy-phase.preparedness {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.strategy-phase.response {
+    background-color: #dc3545;
+    color: white;
+}
+
+.strategy-phase.recovery {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.strategy-phase.mitigation {
+    background-color: #28a745;
+    color: white;
+}
+
+/* Home page hero section */
+.hero-section {
+    background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1561484930-974554019ade');
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 5rem 0;
+    margin-bottom: 2rem;
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+    color: #2a5298;
+}
+
+/* Chart containers */
+.chart-container {
+    position: relative;
+    height: 400px;
+    margin-bottom: 2rem;
+}
+
+/* Loading indicators */
+.loading-indicator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 200px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 3rem 0;
+    }
+    
+    #india-map {
+        height: 350px;
+    }
+    
+    .chart-container {
+        height: 300px;
+    }
+}
+
+/* Custom navbar styling */
+.navbar-brand {
+    font-weight: bold;
+}
+
+.navbar-brand span {
+    color: #17a2b8;
+}
+
+/* Footer styling */
+.footer {
+    padding: 2rem 0;
+    margin-top: 3rem;
+    background-color: #343a40;
+    color: white;
+}
+
+.footer a {
+    color: #17a2b8;
+}
+
+/* Accessibility improvements */
+a:focus, button:focus, input:focus, select:focus, textarea:focus {
+    outline: 2px solid #17a2b8;
+    outline-offset: 2px;
+}
+
+/* Error and empty states */
+.error-container {
+    text-align: center;
+    padding: 2rem;
+    margin: 2rem 0;
+    border-radius: 0.25rem;
+    background-color: rgba(220, 53, 69, 0.1);
+    border: 1px solid rgba(220, 53, 69, 0.2);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 2rem;
+    margin: 2rem 0;
+    border-radius: 0.25rem;
+    background-color: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}

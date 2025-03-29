@@ -1,0 +1,155 @@
+{% extends 'layout.html' %}
+
+{% block title %}Weather Dashboard - Indian Climate Analysis{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Weather Dashboard</h1>
+    <div class="d-flex align-items-center">
+        <label for="citySelector" class="me-2">Select City:</label>
+        <select id="citySelector" class="form-select" style="width: auto;">
+            {% for city in cities %}
+            <option value="{{ city }}" {% if city == selected_city %}selected{% endif %}>{{ city }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Current Weather Card -->
+    <div class="col-md-6 mb-4">
+        <div id="weather-card" class="card dashboard-card weather-card">
+            <div class="card-body">
+                <div id="weather-loading" class="d-flex justify-content-center d-none">
+                    <div class="spinner-border text-light" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+                <div id="weather-error" class="alert alert-danger d-none" role="alert"></div>
+                
+                <div class="row">
+                    <div class="col-8">
+                        <h4 id="current-location" class="mb-0">{{ selected_city }}</h4>
+                        <p class="text-light mb-3" id="last-updated">Last updated: {{ weather_data.time if weather_data else 'N/A' }}</p>
+                        <h2 id="current-temperature" class="display-1">{{ weather_data.temperature }}°C</h2>
+                        <p id="current-description" class="lead">{{ weather_data.weather_description }}</p>
+                    </div>
+                    <div class="col-4 text-end">
+                        <i id="weather-icon" class="fas fa-{% if weather_data.weathercode == 0 %}sun{% elif weather_data.weathercode >= 51 and weather_data.weathercode <= 65 %}cloud-rain{% elif weather_data.weathercode >= 71 and weather_data.weathercode <= 77 %}snowflake{% elif weather_data.weathercode >= 95 %}bolt{% else %}cloud{% endif %} weather-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-4 text-center">
+                        <div class="p-3 bg-dark rounded">
+                            <i class="fas fa-tint mb-2"></i>
+                            <h5>Humidity</h5>
+                            <p id="current-humidity" class="mb-0">{{ weather_data.humidity if weather_data else 'N/A' }}%</p>
+                        </div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="p-3 bg-dark rounded">
+                            <i class="fas fa-wind mb-2"></i>
+                            <h5>Wind</h5>
+                            <p id="current-wind" class="mb-0">{{ weather_data.windspeed if weather_data else 'N/A' }} km/h</p>
+                        </div>
+                    </div>
+                    <div class="col-4 text-center">
+                        <div class="p-3 bg-dark rounded">
+                            <i class="fas fa-cloud-rain mb-2"></i>
+                            <h5>Precipitation</h5>
+                            <p id="current-precipitation" class="mb-0">{{ weather_data.precipitation if weather_data else 'N/A' }} mm</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 5-Day Forecast -->
+    <div class="col-md-6 mb-4">
+        <div class="card dashboard-card h-100">
+            <div class="card-header">
+                <h4 class="mb-0">5-Day Forecast</h4>
+            </div>
+            <div class="card-body">
+                {% if forecast_data %}
+                <div class="chart-container">
+                    <canvas id="forecastChart"></canvas>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    Forecast data is not available for this location.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Disaster Predictions -->
+<div class="card dashboard-card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="mb-0">Disaster Predictions for {{ selected_city }}</h4>
+        <div id="predictions-loading" class="spinner-border spinner-border-sm text-light d-none" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div id="disaster-predictions">
+            {% if disaster_predictions and disaster_predictions|length > 0 %}
+                <div class="row">
+                {% for prediction in disaster_predictions %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card prediction-card severity-{{ prediction.severity }}">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">{{ prediction.disaster_type }}</h5>
+                                <span class="badge bg-{% if prediction.severity >= 4 %}danger{% elif prediction.severity == 3 %}warning{% else %}info{% endif %}">
+                                    Severity: {{ prediction.severity }}/5
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <p>{{ prediction.description }}</p>
+                                <p><strong>Probability:</strong> {{ (prediction.probability * 100)|round|int }}%</p>
+                                <p><strong>Valid until:</strong> {{ prediction.valid_until }}</p>
+                                
+                                <div class="mt-3">
+                                    <strong>Precautions:</strong>
+                                    <ul class="mb-0">
+                                        {% for precaution in prediction.precautions %}
+                                        <li>{{ precaution }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    No disaster predictions for {{ selected_city }} at this time.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Map Section -->
+<div class="card dashboard-card">
+    <div class="card-header">
+        <h4 class="mb-0">Regional Climate Map</h4>
+    </div>
+    <div class="card-body p-0">
+        <div id="india-map" style="height: 500px;"></div>
+    </div>
+    <div class="card-footer">
+        <p class="text-muted mb-0">Click on any city marker to view current weather conditions and disaster risk information.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/map.js') }}"></script>
+{% endblock %}
